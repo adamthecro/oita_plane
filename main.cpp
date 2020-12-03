@@ -140,7 +140,7 @@ void coms_handler()
 {
     while (true)
     {
-
+        communicate("supp");
 
     }
 }
