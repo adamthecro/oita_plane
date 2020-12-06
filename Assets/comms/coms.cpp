@@ -10,7 +10,7 @@ string communicate(string data)
     CURL *curl;
     CURLcode res;
     string readBuffer;
-    string url = string("192.168.1.200:8000/plane") + data;
+    string url = string("https://omsintheairserver.herokuapp.com/plane?") + data;
     curl = curl_easy_init();
     if (curl)
     {

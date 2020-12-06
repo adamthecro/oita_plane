@@ -18,8 +18,8 @@ public:
 	int bus;
 	int file;
 	int mpu_file;
-	char *filename = "/dev/i2c-0";
-	char *mpu_filename = "/dev/i2c-0";
+	char *filename = "/dev/i2c-1";
+	char *mpu_filename = "/dev/i2c-1";
 	float mres = 4912.0 / 32760.0;
 	float magXc;
 	float magYc;
