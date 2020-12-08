@@ -145,7 +145,13 @@ void i2c_1()
         chrono_mpu1.end();
         mpu_1_filter.updateIMU(mpu_1.gyroX, mpu_1.gyroY, mpu_1.gyroZ, mpu_1.accX, mpu_1.accY, mpu_1.accZ, chrono_mpu1.get());
         chrono_mpu1.start();
+    }
+}
 
+void i2c_2()
+{
+    while (true)
+    {
         mpu_2.read_raw();
         chrono_mpu2.end();
         mpu_2_filter.updateIMU(mpu_2.gyroX, mpu_2.gyroY, mpu_2.gyroZ, mpu_2.accX, mpu_2.accY, mpu_2.accZ, chrono_mpu2.get());
@@ -153,12 +159,15 @@ void i2c_1()
     }
 }
 
-void i2c_2()
-{ /*
+void i2c_3()
+{
     while (true)
     {
-        usleep()
-    }*/
+        mpu_3.read_raw();
+        chrono_mpu3.end();
+        mpu_3_filter.update(mpu_3.gyroX, mpu_3.gyroY, mpu_3.gyroZ, mpu_3.accX, mpu_3.accY, mpu_3.accZ, mpu_3.magX, mpu_3.magY, mpu_3.magZ, chrono_mpu2.get());
+        chrono_mpu3.start();
+    }
 }
 
 void coms_handler()
@@ -186,7 +195,7 @@ void coms_handler()
                               "&gyroz_m1=" + to_string(mpu_1.gyroZ) +
                               "&pitch_m1=" + to_string(mpu_1_filter.getPitchRadians()) +
                               "&roll_m1=" + to_string(mpu_1_filter.getRollRadians()) +
-                              "&yaw_m1=" + to_string(/*mpu_1_filter.getYawRadians()*/ 0) +
+                              "&yaw_m1=" + to_string(mpu_1_filter.getYawRadians()) +
 
                               // IMU 2
                               "&accx_m2=" + to_string(mpu_2.accX) +
@@ -197,7 +206,7 @@ void coms_handler()
                               "&gyroz_m2=" + to_string(mpu_2.gyroZ) +
                               "&pitch_m2=" + to_string(mpu_2_filter.getPitchRadians()) +
                               "&roll_m2=" + to_string(mpu_2_filter.getRollRadians()) +
-                              "&yaw_m2=" + to_string(/*mpu_2_filter.getYawRadians()*/ 0) +
+                              "&yaw_m2=" + to_string(mpu_2_filter.getYawRadians()) +
 
                               //IMU3
                               "&accx_m3=" + to_string(mpu_3.accX) +
@@ -209,13 +218,13 @@ void coms_handler()
                               "&magx_m3=" + to_string(mpu_3.magX) +
                               "&magy_m3=" + to_string(mpu_3.magY) +
                               "&magz_m3=" + to_string(mpu_3.magZ) +
-                              "&pitch_m3=" + to_string(0) +
-                              "&roll_m3=" + to_string(0) +
-                              "&yaw_m3=" + to_string(0) +
+                              "&pitch_m3=" + to_string(mpu_3_filter.getPitchRadians()) +
+                              "&roll_m3=" + to_string(mpu_3_filter.getRollRadians()) +
+                              "&yaw_m3=" + to_string(mpu_3_filter.getYawRadians()) +
 
                               //Globals IMU
-                              "&pitch_gi=" + to_string(0) +
-                              "&roll_gi=" + to_string(0) +
+                              "&pitch_gi=" + to_string((mpu_3_filter.getPitchRadians() + mpu_2_filter.getPitchRadians() + mpu_1_filter.getPitchRadians()) / 3) +
+                              "&roll_gi=" + to_string((mpu_3_filter.getRollRadians() + mpu_2_filter.getRollRadians() + mpu_1_filter.getRollRadians()) / 3) +
                               "&yaw_gi=" + to_string(0) +
 
                               //GPS
@@ -229,8 +238,11 @@ void coms_handler()
         chrono_main.start();
         communicate(data_to_send);
         chrono_main.end();
-        cout << chrono_main.get() << endl;
-        usleep(500000);
+        cout << "Pack: " << packet_id << " - " << chrono_main.get() << endl;
+        if (chrono_main.get() < 500000)
+        {
+            usleep(500000 - chrono_main.get());
+        }
         packet_id++;
     }
 }
@@ -244,11 +256,16 @@ int main()
     //Initialize IMU's
     mpu_1.init();
     mpu_2.init();
+    mpu_3.init();
+    mpu_1_filter.begin(300);
+    mpu_2_filter.begin(300);
+    mpu_3_filter.begin(200);
 
     //Thread Initializer
     thread th_gps_list(gps_listener);
     thread th_i2c_1(i2c_1);
     thread th_i2c_2(i2c_2);
+    thread th_i2c_3(i2c_3);
     thread th_communicate(coms_handler);
     while (true)
     {

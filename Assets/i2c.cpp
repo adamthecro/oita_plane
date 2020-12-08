@@ -32,13 +32,13 @@ char i2c_read(int privfile, uint8_t reg_address)
 {
     char buf[1];
     buf[0] = reg_address;
-
+    /*
     if (write(privfile, buf, 1) != 1)
     {
         printf("Error, unable to write to i2c device\n");
         exit(1);
-    }
-    if (read(privfile, buf, 6) != 6)
+    }*/
+    if (read(privfile, buf, 1) != 1)
     {
         return false_char;
     }

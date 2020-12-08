@@ -64,15 +64,15 @@ public:
             x = ((int16_t)buf[0] << 8) + buf[1];
             y = ((int16_t)buf[2] << 8) + buf[3];
             z = ((int16_t)buf[4] << 8) + buf[5];
-            accZ = z / 8192.0;
             accX = x / 8192.0;
             accY = y / 8192.0;
+            accZ = z / 8192.0;
             x = ((int16_t)buf[8] << 8) + buf[9];
             y = ((int16_t)buf[10] << 8) + buf[11];
             z = ((int16_t)buf[12] << 8) + buf[13];
-            gyroZ = z / 131.072;
             gyroX = x / 131.072;
             gyroY = y / 131.072;
+            gyroZ = z / 131.072;
         }
         else
         {

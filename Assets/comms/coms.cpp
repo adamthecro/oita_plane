@@ -10,7 +10,7 @@ string communicate(string data)
     CURL *curl;
     CURLcode res;
     string readBuffer;
-    string url = string("https://omsintheairserver.herokuapp.com/plane?") + data;
+    string url = string("http://omsintheairserver.herokuapp.com/plane?") + data;
     curl = curl_easy_init();
     if (curl)
     {
@@ -18,8 +18,7 @@ string communicate(string data)
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
         res = curl_easy_perform(curl);
-
-        cout << "Received: " << readBuffer << endl;
     }
+    curl_easy_cleanup(curl);
     return readBuffer;
 }
