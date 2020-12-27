@@ -27,9 +27,9 @@
 //-------------------------------------------------------------------------------------------
 // Definitions
 
-#define DEFAULT_SAMPLE_FREQ 250.0f // sample frequency in Hz
-#define twoKpDef (2.0f * 5.0f)	   // 2 * proportional gain
-#define twoKiDef (2.0f * 0.5f)	   // 2 * integral gain
+#define DEFAULT_SAMPLE_FREQ 512.0f // sample frequency in Hz
+#define twoKpDef (2.0f * 0.5f)	   // 2 * proportional gain
+#define twoKiDef (2.0f * 0.0f)	   // 2 * integral gain
 
 //============================================================================================
 // Functions
@@ -49,10 +49,9 @@ Mahony::Mahony()
 	integralFBy = 0.0f;
 	integralFBz = 0.0f;
 	anglesComputed = 0;
-	invSampleFreq = 1.0f / DEFAULT_SAMPLE_FREQ;
 }
 
-void Mahony::update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float time)
+void Mahony::update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz)
 {
 	float recipNorm;
 	float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
@@ -60,11 +59,12 @@ void Mahony::update(float gx, float gy, float gz, float ax, float ay, float az, 
 	float halfvx, halfvy, halfvz, halfwx, halfwy, halfwz;
 	float halfex, halfey, halfez;
 	float qa, qb, qc;
+
 	// Use IMU algorithm if magnetometer measurement invalid
 	// (avoids NaN in magnetometer normalisation)
 	if ((mx == 0.0f) && (my == 0.0f) && (mz == 0.0f))
 	{
-		updateIMU(gx, gy, gz, ax, ay, az, time);
+		updateIMU(gx, gy, gz, ax, ay, az);
 		return;
 	}
 
@@ -170,7 +170,7 @@ void Mahony::update(float gx, float gy, float gz, float ax, float ay, float az, 
 //-------------------------------------------------------------------------------------------
 // IMU algorithm update
 
-void Mahony::updateIMU(float gx, float gy, float gz, float ax, float ay, float az, float time)
+void Mahony::updateIMU(float gx, float gy, float gz, float ax, float ay, float az)
 {
 	float recipNorm;
 	float halfvx, halfvy, halfvz;
@@ -255,14 +255,9 @@ void Mahony::updateIMU(float gx, float gy, float gz, float ax, float ay, float a
 
 float Mahony::invSqrt(float x)
 {
-	float halfx = 0.5f * x;
-	float y = x;
-	long i = *(long *)&y;
-	i = 0x5f3759df - (i >> 1);
-	y = *(float *)&i;
-	y = y * (1.5f - (halfx * y * y));
-	y = y * (1.5f - (halfx * y * y));
-	return y;
+	unsigned int i = 0x5F1F1412 - (*(unsigned int *)&x >> 1);
+	float tmp = *(float *)&i;
+	return tmp * (1.69000231f - 0.714158168f * x * tmp * tmp);
 }
 
 //-------------------------------------------------------------------------------------------

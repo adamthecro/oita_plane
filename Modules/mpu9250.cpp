@@ -51,7 +51,7 @@ public:
 		mpu_file = open(mpu_filename, O_RDWR);
 		if (ioctl(mpu_file, I2C_SLAVE, addr) < 0)
 		{
-			cout << "Couldn't initialize MPU9250" << endl;
+			LOG_F(ERROR, "Couldn't initialize MPU9250");
 			ready = false;
 			return false;
 		}
@@ -66,25 +66,25 @@ public:
 		i2c_write(mpu_file, ACCEL_CONFIG_2, 0x00);
 		i2c_write(mpu_file, INT_PIN_CFG, 0x02);
 		i2c_write(mpu_file, USER_CTRL, 0x00);
+
 		//AK CONFIG
 		if (ioctl(file, I2C_SLAVE, 0x0c) < 0)
 		{
-			cout << "Couldn't initialize AK8963" << endl;
+			LOG_F(ERROR, "Couldn't initialize AK8963");
 			ready = false;
 			return false;
 		}
 		i2c_write(file, AK8963_CNTL1, 0x00);
 		i2c_write(file, AK8963_CNTL1, 0x0F);
-
 		unsigned char buf[5];
-		buf[0] = AK8963_ASAX;
+		buf[0] = 0x10;
 		if ((write(file, buf, 1)) != 1)
 		{
-			cout << "Error writing to AK8963 at: " << addr << endl;
+			LOG_F(ERROR, "Couldn't write to AK8963");
 		}
 		if (read(file, buf, 3) != 3)
 		{
-			cout << "Error reading from AK8963 at: " << addr << endl;
+			LOG_F(ERROR, "Couldn't read from AK8963");
 		}
 		magXc = (buf[0] - 128) / 256.0 + 1.0;
 		magYc = (buf[1] - 128) / 256.0 + 1.0;
@@ -94,7 +94,6 @@ public:
 		i2c_write(file, AK8963_CNTL1, 0x16);
 
 		ready = true;
-
 		return true;
 	}
 	void read_raw()
@@ -115,11 +114,11 @@ public:
 
 			if ((write(mpu_file, buf, 1)) != 1)
 			{
-				cout << "Error writing to MPU9250 at: " << addr << endl;
+				LOG_F(ERROR, "Couldn't write to MPU9250");
 			}
 			if (read(mpu_file, buf, 14) != 14)
 			{
-				cout << "Error reading from MPU9250 at: " << addr << endl;
+				LOG_F(ERROR, "Couldn't read from MPU9250");
 			}
 			x = ((int16_t)buf[0] << 8) + buf[1];
 			y = ((int16_t)buf[2] << 8) + buf[3];

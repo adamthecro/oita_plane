@@ -33,3 +33,21 @@ void tokenize(string const &str, const char delim,
         out.push_back(str.substr(start, end - start));
     }
 }
+string currentDateTime()
+{
+    time_t now = time(0);
+    struct tm tstruct;
+    char buf[80];
+    tstruct = *localtime(&now);
+    strftime(buf, 20, "%d.%m.%y - %X", &tstruct);
+    return buf;
+}
+
+float cpu_temp()
+{
+    string val;
+    ifstream ifile("/sys/class/thermal/thermal_zone0/temp");
+    ifile >> val;
+    ifile.close();
+    return stoi(val) / 1000;
+}

@@ -32,7 +32,7 @@ public:
         file = open(filename, O_RDWR);
         if (ioctl(file, I2C_SLAVE, addr) < 0)
         {
-            cout << "Couldnt initialize MPU6050 at: " << addr << endl;
+            LOG_F(ERROR, "Couldn't initialize MPU6050 at: %d", addr);
             ready = false;
             return false;
         }
@@ -55,11 +55,11 @@ public:
 
             if ((write(file, buf, 1)) != 1)
             {
-                cout << "Error writing to MPU6050 at: " << addr << endl;
+                LOG_F(ERROR, "Couldn't write to MPU6050 at: %d", addr);
             }
             if (read(file, buf, 14) != 14)
             {
-                cout << "Error reading from MPU6050 at: " << addr << endl;
+                LOG_F(ERROR, "Couldn't read from MPU6050 at: %d", addr);
             }
             x = ((int16_t)buf[0] << 8) + buf[1];
             y = ((int16_t)buf[2] << 8) + buf[3];

@@ -23,6 +23,7 @@ bool i2c_write(int privfile, __u8 reg_address, __u8 val)
 
     if (write(privfile, buf, 2) != 2)
     {
+        LOG_F(ERROR, "Unable to write to: %d", buf[0]);
         return false;
     }
     return true;

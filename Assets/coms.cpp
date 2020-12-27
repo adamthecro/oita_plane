@@ -10,11 +10,10 @@ string communicate(string data)
     CURL *curl;
     CURLcode res;
     string readBuffer;
-    string url = string("http://omsintheairserver.herokuapp.com/plane?") + data;
     curl = curl_easy_init();
     if (curl)
     {
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_URL, data.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
         res = curl_easy_perform(curl);

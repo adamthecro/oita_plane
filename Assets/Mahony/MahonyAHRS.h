@@ -36,8 +36,8 @@ private:
 public:
 	Mahony();
 	void begin(float sampleFrequency) { invSampleFreq = 1.0f / sampleFrequency; }
-	void update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz, float time);
-	void updateIMU(float gx, float gy, float gz, float ax, float ay, float az, float time);
+	void update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
+	void updateIMU(float gx, float gy, float gz, float ax, float ay, float az);
 	float getRoll()
 	{
 		if (!anglesComputed)

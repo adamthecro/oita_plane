@@ -15,7 +15,6 @@ public:
 
     serial(char *a, speed_t br) : filename(a), baudrate(br)
     {
-        cout << "Opened: " << filename << "\n";
         ser = open(filename, O_RDWR | O_NOCTTY | O_NONBLOCK | O_SYNC);
         struct termios config;
         tcgetattr(ser, &config);
