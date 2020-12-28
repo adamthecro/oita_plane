@@ -136,6 +136,10 @@ float pitch_gi = 0;
 float roll_gi = 0;
 float yaw_gi = 0;
 
+float base_pitch = 0;
+float base_roll = 0;
+float base_yaw = 0;
+
 float local_time = 0.00;
 
 float speed = 0;
@@ -183,9 +187,11 @@ void gps_listener()
             longitude = stof(buff[4]); //En direccion EW
             gps_state = stoi(buff[6]);
             sats_using = stoi(buff[7]);
+            cout << "Altitude?:" << buff[9] << endl;
         }
         else if (buff[0] == "$GNGST")
         {
+            cout << "Altitude?:" << buff[8] << endl;
             //https://www.trimble.com/OEM_ReceiverHelp/V4.44/en/NMEA-0183messages_GST.html
         }
         else if (buff[0] == "$GNRMC")
@@ -406,8 +412,8 @@ int main()
     //PID Controllers
     altitude_pid_v.setOutputLimits(500, 2000);
     pitch_pid_v.setOutputLimits(-90, 90);
-    roll_pid_v.setOutputLimits(0, 500);
-    yaw_pid_v.setOutputLimits(-90, 90);
+    roll_pid_v.setOutputLimits(-500, 500);
+    yaw_pid_v.setOutputLimits(-30, 30);
 
     altitude_pid_h.setOutputLimits(-20, 20);
     pitch_pid_h.setOutputLimits(-90, 90);
@@ -427,7 +433,14 @@ int main()
         yaw_gi = mpu_3_filter.getYawRadians();
         summarized_data = summarize_data();
         logz << summarized_data << endl;
-        mode = buff_recv[0];
+        if (mode != buff_recv[0])
+        {
+            if (buff_recv[0] == 4)
+            {
+                base_yaw = yaw_gi;
+            }
+            mode = buff_recv[0];
+        }
         switch (mode)
         {
         case 0:
@@ -495,6 +508,14 @@ int main()
             break;
 
         case 4:
+            base_yaw += buff_recv[8];
+            float roll_out_pid = roll_pid_v.getOutput(roll_gi, base_roll);
+            float yaw_out_pid = yaw_pid_v.getOutput(yaw_gi, base_yaw);
+            m_l = buff_recv[1] + roll_out_pid;
+            m_r = buff_recv[2] - roll_out_pid;
+            s_l = buff_recv[8] + yaw_out_pid;
+            s_r = buff_recv[9] - yaw_out_pid;
+
             break;
 
         case 99:
