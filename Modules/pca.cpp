@@ -10,6 +10,8 @@ using namespace std;
 #define MAX_PWM_RES 4096
 #define CLOCK_FREQ 27000000.0
 
+extern logs logs_log;
+
 char *pca_filename = "/dev/i2c-1";
 int pca_file;
 int pca_ready = false;
@@ -39,13 +41,14 @@ int pca_init()
     pca_file = open(pca_filename, O_RDWR);
     if (ioctl(pca_file, I2C_SLAVE, 0x40) < 0)
     {
-        LOG_F(ERROR, "Couldn't initialize PCA9685");
+        logs_log.log(3, "PCA9685", "Couldn't initialize PCA9685");
+        pca_ready = false;
+        return 0;
     }
 
     pca_reset();
     usleep(100000);
     set_pwm_freq(300);
-    LOG_F(INFO, "PCA9685 READY!");
     pca_ready = true;
     return 0;
 }
@@ -64,20 +67,29 @@ public:
     }
 
     void set_pwm(int on_value, int off_value)
-    { /*
+    {
+        if (pca_ready)
+        {
+
+            /*
         i2c_write(pca_file, LED0_ON_L + LED_MULTIPLYER * pca_bus, on_value & 0xFF);
         i2c_write(pca_file, LED0_ON_H + LED_MULTIPLYER * pca_bus, on_value >> 8);
         i2c_write(pca_file, LED0_OFF_L + LED_MULTIPLYER * pca_bus, off_value & 0xFF);
         i2c_write(pca_file, LED0_OFF_H + LED_MULTIPLYER * pca_bus, off_value >> 8); */
-        unsigned char buf[5];
-        buf[0] = LED0_ON_L + LED_MULTIPLYER * pca_bus;
-        buf[1] = on_value & 0xFF;
-        buf[2] = on_value >> 8;
-        buf[3] = off_value & 0xFF;
-        buf[4] = off_value >> 8;
-        if (write(pca_file, buf, 5) != 5)
+            unsigned char buf[5];
+            buf[0] = LED0_ON_L + LED_MULTIPLYER * pca_bus;
+            buf[1] = on_value & 0xFF;
+            buf[2] = on_value >> 8;
+            buf[3] = off_value & 0xFF;
+            buf[4] = off_value >> 8;
+            if (write(pca_file, buf, 5) != 5)
+            {
+                logs_log.log(3, "PCA9685", "Couldn't write to PCA9685 at: " + to_string(pca_bus));
+            }
+        }
+        else
         {
-            LOG_F(ERROR, "Couldn't write to PCA9685 at: %d", pca_bus);
+            pca_init();
         }
     }
     void rotate_deg(double deg)

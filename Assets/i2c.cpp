@@ -1,9 +1,7 @@
 using namespace std;
-extern "C"
-{
-#include <linux/i2c.h>
-#include <linux/i2c-dev.h>
-}
+
+extern logs logs_log;
+
 char false_char = char(32);
 int16_t dataConv(int16_t data1, int16_t data2)
 {
@@ -23,7 +21,7 @@ bool i2c_write(int privfile, __u8 reg_address, __u8 val)
 
     if (write(privfile, buf, 2) != 2)
     {
-        LOG_F(ERROR, "Unable to write to: %d", buf[0]);
+        logs_log.log(0, "i2c_tools", "Unable to write to: " + to_string(reg_address));
         return false;
     }
     return true;

@@ -6,6 +6,7 @@ using namespace std;
 #define MPU6050_RA_ACCEL_CONFIG 0x1C
 #define MPU6050_RA_CONFIG 0x1A
 
+extern logs logs_log;
 class mpu6050
 {
 public:
@@ -32,7 +33,7 @@ public:
         file = open(filename, O_RDWR);
         if (ioctl(file, I2C_SLAVE, addr) < 0)
         {
-            LOG_F(ERROR, "Couldn't initialize MPU6050 at: %d", addr);
+            logs_log.log(3, "MPU6050", "Couldn't initialize MPU6050 at: " + to_string(addr));
             ready = false;
             return false;
         }
@@ -55,11 +56,11 @@ public:
 
             if ((write(file, buf, 1)) != 1)
             {
-                LOG_F(ERROR, "Couldn't write to MPU6050 at: %d", addr);
+                logs_log.log(3, "MPU6050", "Couldn't write to MPU6050 at: " + to_string(addr));
             }
             if (read(file, buf, 14) != 14)
             {
-                LOG_F(ERROR, "Couldn't read from MPU6050 at: %d", addr);
+                logs_log.log(3, "MPU6050", "Couldn't read from MPU6050 at: " + to_string(addr));
             }
             x = ((int16_t)buf[0] << 8) + buf[1];
             y = ((int16_t)buf[2] << 8) + buf[3];

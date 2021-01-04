@@ -11,6 +11,8 @@ using namespace std;
 #define AK8963_CNTL1 0x0A
 #define AK8963_ASAX 0x10
 
+extern logs logs_log;
+
 class mpu9250
 {
 
@@ -51,7 +53,7 @@ public:
 		mpu_file = open(mpu_filename, O_RDWR);
 		if (ioctl(mpu_file, I2C_SLAVE, addr) < 0)
 		{
-			LOG_F(ERROR, "Couldn't initialize MPU9250");
+			logs_log.log(3, "MPU9250", "Couldn't initialize MPU9250");
 			ready = false;
 			return false;
 		}
@@ -70,7 +72,7 @@ public:
 		//AK CONFIG
 		if (ioctl(file, I2C_SLAVE, 0x0c) < 0)
 		{
-			LOG_F(ERROR, "Couldn't initialize AK8963");
+			logs_log.log(3, "MPU9250", "Couldn't initialize AK8963");
 			ready = false;
 			return false;
 		}
@@ -80,11 +82,11 @@ public:
 		buf[0] = 0x10;
 		if ((write(file, buf, 1)) != 1)
 		{
-			LOG_F(ERROR, "Couldn't write to AK8963");
+			logs_log.log(3, "MPU9250", "Couldn't write to AK8963");
 		}
 		if (read(file, buf, 3) != 3)
 		{
-			LOG_F(ERROR, "Couldn't read from AK8963");
+			logs_log.log(3, "MPU9250", "Couldn't read from AK8963");
 		}
 		magXc = (buf[0] - 128) / 256.0 + 1.0;
 		magYc = (buf[1] - 128) / 256.0 + 1.0;
@@ -114,11 +116,11 @@ public:
 
 			if ((write(mpu_file, buf, 1)) != 1)
 			{
-				LOG_F(ERROR, "Couldn't write to MPU9250");
+				logs_log.log(3, "MPU9250", "Couldn't write to MPU9250");
 			}
 			if (read(mpu_file, buf, 14) != 14)
 			{
-				LOG_F(ERROR, "Couldn't read from MPU9250");
+				logs_log.log(3, "MPU9250", "Couldn't read from MPU9250");
 			}
 			x = ((int16_t)buf[0] << 8) + buf[1];
 			y = ((int16_t)buf[2] << 8) + buf[3];
