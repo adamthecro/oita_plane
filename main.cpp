@@ -1,17 +1,18 @@
 #include <iostream>
-#include <sys/ioctl.h>
-#include <fcntl.h>
-//USLEEP
+//Usleep
 #include <unistd.h>
-#include <cmath>
+//Strings
 #include <string>
+//Serial
 #include <termios.h>
+//HTTP Requests
 #include <curl/curl.h>
+//Multithreading
 #include <thread>
+//stdout mes bunic
 #include <iomanip>
 //StringStream
 #include <sstream>
-
 //File Handler
 #include <fstream>
 
@@ -21,7 +22,10 @@ extern "C"
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 }
+#include <sys/ioctl.h>
+#include <fcntl.h>
 
+//Own libraries
 #include "Assets/tools.cpp"
 #include "Assets/i2c.cpp"
 #include "Assets/coms.cpp"
@@ -45,7 +49,11 @@ extern "C"
 using namespace std;
 using namespace chrono;
 
+#ifdef DEBUG
 bool debuging = true;
+#else
+bool debuging = false;
+#endif
 
 //Loggers
 string file_name = "logs/" + currentDateTime();
@@ -312,6 +320,7 @@ string summarize_data()
     ss >> s;
     return s;
 }
+
 void coms_handler()
 {
     while (true)
@@ -354,6 +363,7 @@ int main()
     chrono_global.start();
     logs_log.log(1, "main", "'Initializing'");
     data_log.raw("packet_id,time_p,latitude,longitude,altitude,speed,sats_using,gps_state,m_l,m_r,s0,s1,s2,s3,s4,s_l,s_r,mpu1_ax,mpu1_ay,mpu1_az,mpu1_gx,mpu1_gy,mpu1_gz,mpu1_p,mpu1_r,mpu1_y,mpu2_ax,mpu2_ay,mpu2_az,mpu2_gx,mpu2_gy,mpu2_gz,mpu2_p,mpu2_r,mpu2_y,mpu3_ax,mpu3_ay,mpu3_az,mpu3_gx,mpu3_gy,mpu3_gz,mpu3_mx,mpu3_my,mpu3_mz,mpu3_p,mpu3_r,mpu3_y,pitch_gi,roll_gi,yaw_gi,cpu_temp");
+
     //Start PCA
     pca_init();
 
@@ -377,10 +387,10 @@ int main()
     yaw_pid_h.setOutputLimits(0, 500);
 
     //Thread Initializer
-    /*thread th_gps_list(gps_listener);
+    thread th_gps_list(gps_listener);
     thread th_i2c_1(i2c_1);
     thread th_i2c_2(i2c_2);
-    thread th_i2c_3(i2c_3);*/
+    thread th_i2c_3(i2c_3);
     thread th_communicate(coms_handler);
     while (true)
     {
@@ -510,6 +520,7 @@ int main()
             break;
         }
         }
+        //Uk
     }
     return 0;
 }
