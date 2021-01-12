@@ -78,6 +78,12 @@ float round_uk(float var)
     return (float)value / 100;
 }
 
+string bufferToString(char *buffer, int bufflen)
+{
+    string ret(buffer, bufflen);
+    return ret;
+};
+
 extern clp chrono_global;
 
 class logs

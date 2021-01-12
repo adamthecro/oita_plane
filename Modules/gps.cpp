@@ -1,9 +1,4 @@
 using namespace std;
-string bufferToString(char *buffer, int bufflen)
-{
-    string ret(buffer, bufflen);
-    return ret;
-};
 
 class serial
 {
@@ -24,15 +19,12 @@ public:
     string read_until(string delim)
     {
         string final_data;
-        int no_data = 0;
-        no_data = 0;
         while (true)
         {
             char buffer[1];
             int buff_char = read(ser, buffer, 1);
             if (buff_char > 0)
             {
-                no_data = 0;
                 string data_ns = bufferToString(buffer, 1);
                 if (data_ns == delim)
                 {
@@ -45,7 +37,7 @@ public:
             }
             else
             {
-                usleep(35000);
+                usleep(1000000 / 40);
             }
         }
         return final_data;

@@ -107,7 +107,7 @@ serial gps("/dev/ttyS3", B19200);
 const char delims = ',';
 
 //Airplane State
-string server_ip = "192.168.1.22";
+string server_ip = "192.168.1.22:3000";
 float buff_recv[20] = {0};
 
 string summarized_data;
@@ -325,7 +325,7 @@ void coms_handler()
 {
     while (true)
     {
-        string data_to_send = server_ip + ":3000/plane?" + summarized_data;
+        string data_to_send = server_ip + "/plane?" + summarized_data;
         chrono_main.start();
         string rec_data = communicate(data_to_send);
         chrono_main.end();
@@ -404,7 +404,7 @@ int main()
         {
             if (buff_recv[0] == 4)
             {
-                base_yaw = yaw_gi;
+                base_yaw += yaw_gi;
             }
             mode = buff_recv[0];
         }
@@ -412,15 +412,7 @@ int main()
         {
         case 0:
         {
-            m_l = 0;
-            m_r = 0;
-            s_l = 0;
-            s_r = 0;
-            s0 = 0;
-            s1 = 0;
-            s2 = 0;
-            s3 = 0;
-            s4 = 0;
+            m_l, m_r, m_r, s_l, s_r, s0, s1, s2, s3, s4 = 0;
             usleep(10000);
             break;
         }
@@ -464,8 +456,7 @@ int main()
 
         case 2:
         {
-            m_l = 0;
-            m_r = 0;
+            m_l, m_r = 0;
             s_l = s_l_mid + pitch_gi * 57.29578;
             s_r = s_r_mid + pitch_gi * 57.29578;
             s0 = s0_mid;
@@ -487,8 +478,8 @@ int main()
             s1 = buff_recv[4];
             s2 = buff_recv[5];
             s3 = buff_recv[6];
-            usleep(1000000 / 500);
             s4 = buff_recv[7];
+            usleep(1000000 / 500);
             break;
         }
 
